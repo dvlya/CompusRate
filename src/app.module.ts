@@ -30,4 +30,4 @@ import databaseConfig from './config/database.config.js';
     }),
   ],
 })
-export class AppModule 
+export class AppModule {}
