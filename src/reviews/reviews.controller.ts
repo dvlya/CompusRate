@@ -24,7 +24,7 @@ import {
 import { UpdateReviewDto } from './dto/update-review.dto.js';
 import { Review } from './entities/review.entity.js';
 import { ReviewsService } from './reviews.service.js';
-
+const err404 = '404: Review not found';
 @ApiExtraModels(ProblemDetailsDto)
 @ApiResponse({
   status: 500,
@@ -58,7 +58,7 @@ export class ReviewsController {
         schema: { $ref: '#/components/schemas/ProblemDetailsDto' },
       },
     },
-    description: 'Review not found.',
+    description: err404,
   })
   findOne(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
@@ -84,7 +84,7 @@ export class ReviewsController {
         schema: { $ref: '#/components/schemas/ProblemDetailsDto' },
       },
     },
-    description: 'Review not found.',
+    description: err404,
   })
   update(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
@@ -112,7 +112,7 @@ export class ReviewsController {
         schema: { $ref: '#/components/schemas/ProblemDetailsDto' },
       },
     },
-    description: 'Review not found.',
+    description: err404,
   })
   async remove(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,

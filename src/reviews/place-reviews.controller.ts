@@ -23,7 +23,7 @@ import type { Response } from 'express';
 import { CreateReviewDto } from './dto/create-review.dto.js';
 import { Review } from './entities/review.entity.js';
 import { ReviewsService } from './reviews.service.js';
-
+const err404 = '404: Place not found';
 @ApiExtraModels(ProblemDetailsDto)
 @ApiResponse({
   status: 500,
@@ -66,7 +66,7 @@ export class PlaceReviewsController {
         schema: { $ref: '#/components/schemas/ProblemDetailsDto' },
       },
     },
-    description: 'Place not found.',
+    description: err404,
   })
   async create(
     @Param('placeId', new ParseUUIDPipe({ version: '4' })) placeId: string,
@@ -96,7 +96,7 @@ export class PlaceReviewsController {
         schema: { $ref: '#/components/schemas/ProblemDetailsDto' },
       },
     },
-    description: 'Place not found.',
+    description: err404,
   })
   findByPlace(
     @Param('placeId', new ParseUUIDPipe({ version: '4' })) placeId: string,
