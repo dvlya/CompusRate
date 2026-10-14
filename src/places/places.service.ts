@@ -33,27 +33,19 @@ export class PlacesService {
   }
 
   async findAll(query: PlacesQueryDto): Promise<PaginatedPlacesDto> {
-    let places = await this.placesRepository.findAll();
-//filtre les categorie demendee dans le query
-    if (query.category) {
-      places = places.filter(
-        place => place.category === query.category,
-      );
-    }
-//pagination 
-    const start = (query.page - 1) * query.limit;
-    const pagePlaces = places.slice(start, start + query.limit);
+  const places = await this.placesRepository.findAll(query);
+  const totalItems = await this.placesRepository.count(query);
 
-    return {
-      data: pagePlaces.map(place => this.toResponse(place)),
-      pagination: {
-        page: query.page,
-        limit: query.limit,
-        totalItems: places.length,
-        totalPages: Math.ceil(places.length / query.limit),
-      },
-    };
-  }
+  return {
+    data: places.map(place => this.toResponse(place)),
+    pagination: {
+      page: query.page,
+      limit: query.limit,
+      totalItems: totalItems,
+      totalPages: Math.ceil(totalItems / query.limit),
+    },
+  };
+}
 // consulter un lieu par id si il ne trouve pas => message erreur(404)
   async findOne(id: string): Promise<Place> {
     const place = await this.placesRepository.findById(id);
