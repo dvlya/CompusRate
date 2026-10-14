@@ -18,7 +18,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"name\": \"Main Library\",\n  \"description\": \"Quiet study area with Wi-Fi and power outlets.\",\n  \"category\": \"LIBRARY\",\n  \"address\": \"Building A, room A-210\",\n  \"services\": [\"WIFI\", \"POWER_OUTLETS\"]\n}",
+          "raw": "{\n  \"name\": \"Cafeteria\",\n  \"description\": \"A welcoming place to enjoy delicious meals and hang out with friends.\",\n  \"category\": \"cafeteria\",\n  \"address\": \"Main pavilion\",\n  \"services\": [\"WIFI\", \"POWER_OUTLETS\", \"SEATING\", \"TAKEOUT\", \"MICROWAVE\", \"COFFEE\"]\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -57,7 +57,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Cafeteria\",\n  \"description\": \"Food service in the central pavilion.\",\n  \"category\": \"FOOD_SERVICE\",\n  \"address\": \"Central pavilion, level 1\",\n  \"isAdministrator\": true\n}",
+              "raw": "{\n  \"name\": \"Cafeteria\",\n  \"description\": \"Food service in the central pavilion.\",\n  \"category\": \"cafeteria\",\n  \"address\": \"Central pavilion, level 1\",\n  \"isAdministrator\": true\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -92,7 +92,7 @@
             "url": "{{baseUrl}}/api/v1/places",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Cafeteria\",\n  \"description\": \"Food service in the central pavilion.\",\n  \"category\": \"FOOD_SERVICE\",\n  \"address\": \"Central pavilion, level 1\",\n  \"id\": \"client-id\"\n}",
+              "raw": "{\n  \"name\": \"Cafeteria\",\n  \"description\": \"Food service in the central pavilion.\",\n  \"category\": \"cafeteria\",\n  \"address\": \"Central pavilion, level 1\",\n  \"id\": \"client-id\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -120,7 +120,7 @@
       "request": {
         "method": "GET",
         "header": [],
-        "url": "{{baseUrl}}/api/v1/places?category=LIBRARY&page=1&limit=10"
+        "url": "{{baseUrl}}/api/v1/places?category=cafeteria&page=1&limit=10"
       },
       "event": [
         {
@@ -201,7 +201,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"authorName\": \"Dalia Laifa\",\n  \"rating\": 5,\n  \"comment\": \"A calm and practical place to study.\"\n}",
+          "raw": "{\n  \"authorName\": \"Dalia Laifa\",\n  \"rating\": 5,\n  \"comment\": \"Delicious meals and a welcoming atmosphere.\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -286,7 +286,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"rating\": 4,\n  \"comment\": \"Still a very useful study place.\"\n}",
+              "raw": "{\n  \"rating\": 4,\n  \"comment\": \"A nice place to eat and hang out with friends.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"

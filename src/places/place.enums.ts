@@ -1,13 +1,12 @@
 export enum PlaceCategory {
-  STUDY_SPACE = 'STUDY_SPACE',
-  LIBRARY = 'LIBRARY',
-  FOOD_SERVICE = 'FOOD_SERVICE',
-  SPORTS = 'SPORTS',
-  STUDENT_SERVICE = 'STUDENT_SERVICE',
-  COMPUTER_LAB = 'COMPUTER_LAB',
-  OTHER = 'OTHER',
+  CAFETERIA = 'cafeteria',
+  DINING_AREA = 'dining area',
+  GYM = 'gym',
+  COMPUTER_ROOM = 'computer room',
+  STUDY_ROOM = 'study room',
+  LIBRARY = 'library',
+  OTHER = 'other',
 }
-
 export enum PlaceStatus {
   ACTIVE = 'ACTIVE',
   TEMPORARILY_CLOSED = 'TEMPORARILY_CLOSED',

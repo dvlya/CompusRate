@@ -7,34 +7,52 @@ export class Place {
   @ApiProperty({ format: 'uuid' })
   id!: string;
 
-  @ApiProperty({ example: 'Main Library' })
+  @ApiProperty({ example: 'Cafeteria' })
   name!: string;
 
-  @ApiProperty({ example: 'Quiet study area with Wi-Fi and outlets.' })
+  @ApiProperty({
+    example: 'A welcoming place to enjoy delicious meals and hang out with friends.',
+  })
   description!: string;
 
-  @ApiProperty({ enum: PlaceCategory })
+  @ApiProperty({
+    enum: PlaceCategory,
+    example: PlaceCategory.CAFETERIA,
+  })
   category!: PlaceCategory;
 
-  @ApiProperty({ example: 'Building A, room A-210' })
+  @ApiProperty({ example: 'Main pavilion' })
   address!: string;
 
-  @ApiProperty({ type: [String], example: ['WIFI', 'POWER_OUTLETS'] })
+  @ApiProperty({
+    type: [String],
+    example: [
+      'WIFI',
+      'POWER_OUTLETS',
+      'SEATING',
+      'TAKEOUT',
+      'MICROWAVE',
+      'COFFEE',
+    ],
+  })
   services!: string[];
 
-  @ApiProperty({ enum: PlaceStatus })
+  @ApiProperty({
+    enum: PlaceStatus,
+    example: PlaceStatus.ACTIVE,
+  })
   status!: PlaceStatus;
 
   @ApiProperty({ type: Number, example: 4.5, nullable: true })
   averageRating!: number | null;
 
-  @ApiProperty({ example: 2 })
+  @ApiProperty({ type: 'integer', example: 2 })
   reviewCount!: number;
 
-  @ApiProperty({ format: 'date-time' })
+  @ApiProperty({ type: String, format: 'date-time' })
   createdAt!: string;
 
-  @ApiProperty({ format: 'date-time' })
+  @ApiProperty({ type: String, format: 'date-time' })
   updatedAt!: string;
 
   constructor(dto: CreatePlaceDto) {

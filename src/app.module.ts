@@ -1,11 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import * as Joi from 'joi';
+import Joi from 'joi';
 import databaseConfig from './config/database.config.js';
+import { PlacesModule } from './places/places.module.js';
+import { ReviewsModule } from './reviews/reviews.module.js';
 
 @Module({
   imports: [
+     PlacesModule,
+    ReviewsModule,
     // 1. Gestion des configurations avec validation stricte
     ConfigModule.forRoot({
       isGlobal: true,

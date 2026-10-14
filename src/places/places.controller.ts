@@ -1,4 +1,3 @@
-import { ProblemDetailsDto } from '../common/dto/problem-details.dto.js';
 import {
   Body,
   Controller,
@@ -17,57 +16,48 @@ import {
   ApiBadRequestResponse,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiInternalServerErrorResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiExtraModels,
   ApiParam,
-  ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import type { Response } from 'express';
+
+import { ProblemDetailsDto } from '../common/dto/problem-details.dto.js';
 import { CreatePlaceDto } from './dto/create-place.dto.js';
-import { PaginatedPlacesDto } from './dto/paginated-places.dto.js';
-import { PlacesQueryDto } from './dto/places-query.dto.js';
 import { UpdatePlaceDto } from './dto/update-place.dto.js';
+import { PlacesQueryDto } from './dto/places-query.dto.js';
+import { PaginatedPlacesDto } from './dto/paginated-places.dto.js';
 import { Place } from './entities/place.entity.js';
 import { PlacesService } from './places.service.js';
 
-@ApiExtraModels(ProblemDetailsDto)
-@ApiResponse({
-  status: 500,
-  description: 'Internal error.',
-  content: {
-    'application/problem+json': {
-      schema: { $ref: '#/components/schemas/ProblemDetailsDto' },
-    },
-  },
-})
 @ApiTags('Places')
+@ApiInternalServerErrorResponse({
+  description: 'Erreur interne.',
+  type: ProblemDetailsDto,
+})
 @Controller({ path: 'places', version: '1' })
 export class PlacesController {
   constructor(private readonly placesService: PlacesService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a campus place' })
+  @ApiOperation({ summary: 'Créer un lieu' })
   @ApiCreatedResponse({
-    description: 'Place created.',
+    description: 'Lieu créé.',
     type: Place,
     headers: {
       Location: {
-        description: 'URI of the created place',
+        description: 'Adresse du lieu créé.',
         schema: { type: 'string' },
       },
     },
   })
   @ApiBadRequestResponse({
-    content: {
-      'application/problem+json': {
-        schema: { $ref: '#/components/schemas/ProblemDetailsDto' },
-      },
-    },
-    description: 'Invalid data.',
+    description: 'Données invalides ou propriétés non autorisées.',
+    type: ProblemDetailsDto,
   })
   async create(
     @Body() dto: CreatePlaceDto,
@@ -79,39 +69,27 @@ export class PlacesController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'List and filter campus places' })
+  @ApiOperation({ summary: 'Lister et filtrer les lieux' })
   @ApiOkResponse({ type: PaginatedPlacesDto })
   @ApiBadRequestResponse({
-    content: {
-      'application/problem+json': {
-        schema: { $ref: '#/components/schemas/ProblemDetailsDto' },
-      },
-    },
-    description: 'Invalid query parameter.',
+    description: 'Filtres ou pagination invalides.',
+    type: ProblemDetailsDto,
   })
   findAll(@Query() query: PlacesQueryDto): Promise<PaginatedPlacesDto> {
     return this.placesService.findAll(query);
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get one campus place' })
-  @ApiParam({ name: 'id', format: 'uuid', description: 'Place UUID' })
+  @ApiOperation({ summary: 'Consulter un lieu' })
+  @ApiParam({ name: 'id', format: 'uuid' })
   @ApiOkResponse({ type: Place })
   @ApiBadRequestResponse({
-    content: {
-      'application/problem+json': {
-        schema: { $ref: '#/components/schemas/ProblemDetailsDto' },
-      },
-    },
-    description: 'Malformed UUID.',
+    description: 'Identifiant UUID invalide.',
+    type: ProblemDetailsDto,
   })
   @ApiNotFoundResponse({
-    content: {
-      'application/problem+json': {
-        schema: { $ref: '#/components/schemas/ProblemDetailsDto' },
-      },
-    },
-    description: 'Place not found.',
+    description: 'Lieu introuvable.',
+    type: ProblemDetailsDto,
   })
   findOne(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
@@ -120,24 +98,16 @@ export class PlacesController {
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Partially update a campus place' })
-  @ApiParam({ name: 'id', format: 'uuid', description: 'Place UUID' })
+  @ApiOperation({ summary: 'Modifier un lieu' })
+  @ApiParam({ name: 'id', format: 'uuid' })
   @ApiOkResponse({ type: Place })
   @ApiBadRequestResponse({
-    content: {
-      'application/problem+json': {
-        schema: { $ref: '#/components/schemas/ProblemDetailsDto' },
-      },
-    },
-    description: 'Invalid body.',
+    description: 'Identifiant ou données invalides.',
+    type: ProblemDetailsDto,
   })
   @ApiNotFoundResponse({
-    content: {
-      'application/problem+json': {
-        schema: { $ref: '#/components/schemas/ProblemDetailsDto' },
-      },
-    },
-    description: 'Place not found.',
+    description: 'Lieu introuvable.',
+    type: ProblemDetailsDto,
   })
   update(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
@@ -148,32 +118,20 @@ export class PlacesController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Delete a campus place without reviews' })
-  @ApiParam({ name: 'id', format: 'uuid', description: 'Place UUID' })
-  @ApiNoContentResponse({ description: 'Place deleted.' })
+  @ApiOperation({ summary: 'Supprimer un lieu sans avis' })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  @ApiNoContentResponse({ description: 'Lieu supprimé.' })
   @ApiBadRequestResponse({
-    content: {
-      'application/problem+json': {
-        schema: { $ref: '#/components/schemas/ProblemDetailsDto' },
-      },
-    },
-    description: 'Malformed UUID.',
+    description: 'Identifiant UUID invalide.',
+    type: ProblemDetailsDto,
   })
   @ApiNotFoundResponse({
-    content: {
-      'application/problem+json': {
-        schema: { $ref: '#/components/schemas/ProblemDetailsDto' },
-      },
-    },
-    description: 'Place not found.',
+    description: 'Lieu introuvable.',
+    type: ProblemDetailsDto,
   })
   @ApiConflictResponse({
-    content: {
-      'application/problem+json': {
-        schema: { $ref: '#/components/schemas/ProblemDetailsDto' },
-      },
-    },
-    description: 'The place still has reviews.',
+    description: 'Le lieu possède encore des avis.',
+    type: ProblemDetailsDto,
   })
   async remove(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,

@@ -9,52 +9,59 @@ import {
   Matches,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { PlaceCategory, PlaceStatus } from '../place.enums.js';
+import { PlaceCategory, PlaceStatus } from '../place.enums.js'
 
 export class CreatePlaceDto {
   @ApiProperty({
-    example: 'Main Library',
+    example: 'Cafeteria',
     minLength: 2,
     maxLength: 100,
   })
   @IsString()
   @Length(2, 100)
-  @Matches(/\S/, { message: 'name must contain non-whitespace characters' })
+  @Matches(/\S/, { message: ' name cannot be blank'  })
   name!: string;
 
   @ApiProperty({
-    example: 'Quiet study area with Wi-Fi and power outlets.',
+    example: 'A welcoming place to enjoy delicious meals and hang out with friends.',
     minLength: 10,
     maxLength: 500,
   })
   @IsString()
   @Length(10, 500)
   @Matches(/\S/, {
-    message: 'description must contain non-whitespace characters',
+    message: ' description cannot be blank' ,
   })
   description!: string;
+  
+@ApiProperty({
+  type: String,
+  enum: PlaceCategory,
+  enumName: 'PlaceCategory',
+  example: PlaceCategory.CAFETERIA,
+})
+@IsEnum(PlaceCategory)
+category!: PlaceCategory;
 
   @ApiProperty({
-    enum: PlaceCategory,
-    example: PlaceCategory.LIBRARY,
-  })
-  @IsEnum(PlaceCategory)
-  category!: PlaceCategory;
-
-  @ApiProperty({
-    example: 'Building A, room A-210',
+    example: 'Main Pavillon',
     minLength: 5,
     maxLength: 200,
   })
   @IsString()
   @Length(5, 200)
   @Matches(/\S/, {
-    message: 'address must contain non-whitespace characters',
+    message: 'address cannot be blank',
   })
   address!: string;
 
   @ApiPropertyOptional({
-    example: ['WIFI', 'POWER_OUTLETS'],
+    example: ['WIFI',
+      'POWER_OUTLETS',
+      'SEATING',
+      'TAKEOUT',
+      'MICROWAVE',
+      'COFFEE',],
     default: [],
     type: [String],
   })
@@ -66,7 +73,7 @@ export class CreatePlaceDto {
   @Length(1, 50, { each: true })
   @Matches(/\S/, {
     each: true,
-    message: 'each service must contain non-whitespace characters',
+    message: 'each service cannot be blank',
   })
   services?: string[];
 
