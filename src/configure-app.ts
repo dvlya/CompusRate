@@ -1,9 +1,6 @@
-import {
-  INestApplication,
-  ValidationPipe,
-  VersioningType,
-} from '@nestjs/common';
+import {INestApplication,ValidationPipe,VersioningType,} from '@nestjs/common';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
+import helmet from 'helmet';
 
 export function configureApp(app: INestApplication): void {
   app.setGlobalPrefix('api');
@@ -12,7 +9,12 @@ export function configureApp(app: INestApplication): void {
     prefix: 'v',
     defaultVersion: '1',
   });
-  app.enableCors();
+  // Autoriser les origines swagger et vite 
+app.enableCors({
+  origin: ['http://localhost:3000', 'http://localhost:5173'],
+  methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+});
   app.useGlobalFilters(new HttpExceptionFilter());
 
   app.useGlobalPipes(
@@ -22,5 +24,7 @@ export function configureApp(app: INestApplication): void {
       transform: true,
       stopAtFirstError: false,
     }),
+    
   );
+  app.use(helmet());
 }
