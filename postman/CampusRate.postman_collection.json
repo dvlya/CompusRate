@@ -2,12 +2,12 @@
   "info": {
     "_postman_id": "58c6947b-a6a9-4de5-8d51-72b15385a8f8",
     "name": "CampusRate API v1",
-    "description": "10 scénarios manuels pour vérifier le contrat REST CampusRate.",
+    "description": "10 manual scenarios to verify the CampusRate REST contract.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
-      "name": "1 - Créer un lieu valide",
+      "name": "1 - Create a valid place",
       "request": {
         "method": "POST",
         "header": [
@@ -35,7 +35,7 @@
               "pm.test('201 Created', () => pm.response.to.have.status(201));",
               "const body = pm.response.json();",
               "pm.collectionVariables.set('placeId', body.id);",
-              "pm.test('Location est présent', () => pm.expect(pm.response.headers.get('Location')).to.include(body.id));"
+              "pm.test('Location header is present', () => pm.expect(pm.response.headers.get('Location')).to.include(body.id));"
             ],
             "type": "text/javascript"
           }
@@ -43,10 +43,10 @@
       ]
     },
     {
-      "name": "2 - Propriété inconnue et champs serveur refusés",
+      "name": "2 - Reject unknown properties and server-managed fields",
       "item": [
         {
-          "name": "2 - Refuser une propriété inconnue",
+          "name": "2 - Reject an unknown property",
           "request": {
             "method": "POST",
             "header": [
@@ -80,7 +80,7 @@
           ]
         },
         {
-          "name": "Refuser id",
+          "name": "Reject a client-provided ID",
           "request": {
             "method": "POST",
             "header": [
@@ -116,7 +116,7 @@
       ]
     },
     {
-      "name": "3 - Filtrer et paginer les lieux",
+      "name": "3 - Filter and paginate places",
       "request": {
         "method": "GET",
         "header": [],
@@ -136,7 +136,7 @@
       ]
     },
     {
-      "name": "4 - Consulter le lieu créé",
+      "name": "4 - Get the created place",
       "request": {
         "method": "GET",
         "header": [],
@@ -148,7 +148,7 @@
           "script": {
             "exec": [
               "pm.test('200 OK', () => pm.response.to.have.status(200));",
-              "pm.test('Bon identifiant', () => pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('placeId')));"
+              "pm.test('Correct ID', () => pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('placeId')));"
             ],
             "type": "text/javascript"
           }
@@ -156,7 +156,7 @@
       ]
     },
     {
-      "name": "5 - Modifier partiellement un lieu",
+      "name": "5 - Partially update a place",
       "request": {
         "method": "PATCH",
         "header": [
@@ -182,7 +182,7 @@
           "script": {
             "exec": [
               "pm.test('200 OK', () => pm.response.to.have.status(200));",
-              "pm.test('Statut modifié', () => pm.expect(pm.response.json().status).to.eql('TEMPORARILY_CLOSED'));"
+              "pm.test('Status updated', () => pm.expect(pm.response.json().status).to.eql('TEMPORARILY_CLOSED'));"
             ],
             "type": "text/javascript"
           }
@@ -190,7 +190,7 @@
       ]
     },
     {
-      "name": "6 - Créer un avis",
+      "name": "6 - Create a review",
       "request": {
         "method": "POST",
         "header": [
@@ -218,7 +218,7 @@
               "pm.test('201 Created', () => pm.response.to.have.status(201));",
               "const body = pm.response.json();",
               "pm.collectionVariables.set('reviewId', body.id);",
-              "pm.test('Le placeId vient de l’URI', () => pm.expect(body.placeId).to.eql(pm.collectionVariables.get('placeId')));"
+              "pm.test('placeId matches the URI', () => pm.expect(body.placeId).to.eql(pm.collectionVariables.get('placeId')));"
             ],
             "type": "text/javascript"
           }
@@ -226,11 +226,11 @@
       ]
     },
     {
-      "name": "7 - Consultation et persistance après redémarrage",
-      "description": "Après le scénario 6, arrêter puis redémarrer l’API avant ces requêtes. Les identifiants doivent rester disponibles.",
+      "name": "7 - Retrieval and persistence after restart",
+      "description": "After scenario 6, stop and restart the API before sending these requests. The resources must remain available with the same IDs.",
       "item": [
         {
-          "name": "7 - Lister les avis du lieu",
+          "name": "7 - List reviews for the place",
           "request": {
             "method": "GET",
             "header": [],
@@ -242,7 +242,7 @@
               "script": {
                 "exec": [
                   "pm.test('200 OK', () => pm.response.to.have.status(200));",
-                  "pm.test('Au moins un avis', () => pm.expect(pm.response.json().length).to.be.above(0));"
+                  "pm.test('At least one review', () => pm.expect(pm.response.json().length).to.be.above(0));"
                 ],
                 "type": "text/javascript"
               }
@@ -250,7 +250,7 @@
           ]
         },
         {
-          "name": "Consulter l’avis après redémarrage",
+          "name": "Get the review after restart",
           "request": {
             "method": "GET",
             "header": [],
@@ -263,7 +263,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Avis conservé', () => pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('reviewId')));"
+                  "pm.test('Review persisted', () => pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('reviewId')));"
                 ]
               }
             }
@@ -272,10 +272,10 @@
       ]
     },
     {
-      "name": "8 - Modification valide et erreurs",
+      "name": "8 - Valid updates and errors",
       "item": [
         {
-          "name": "8 - Modifier un avis",
+          "name": "8 - Update a review",
           "request": {
             "method": "PATCH",
             "header": [
@@ -301,7 +301,7 @@
               "script": {
                 "exec": [
                   "pm.test('200 OK', () => pm.response.to.have.status(200));",
-                  "pm.test('Note modifiée', () => pm.expect(pm.response.json().rating).to.eql(4));"
+                  "pm.test('Rating updated', () => pm.expect(pm.response.json().rating).to.eql(4));"
                 ],
                 "type": "text/javascript"
               }
@@ -309,7 +309,7 @@
           ]
         },
         {
-          "name": "Refuser une note invalide",
+          "name": "Reject an invalid rating",
           "request": {
             "method": "POST",
             "header": [
@@ -321,7 +321,7 @@
             "url": "{{baseUrl}}/api/v1/places/{{placeId}}/reviews",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"authorName\": \"Dalia\",\n  \"rating\": 6,\n  \"comment\": \"Un commentaire valide.\"\n}",
+              "raw": "{\n  \"authorName\": \"Dalia\",\n  \"rating\": 6,\n  \"comment\": \"A valid comment.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -343,7 +343,7 @@
           ]
         },
         {
-          "name": "Refuser rating null",
+          "name": "Reject a null rating",
           "request": {
             "method": "PATCH",
             "header": [
@@ -377,7 +377,7 @@
           ]
         },
         {
-          "name": "Ressource inexistante",
+          "name": "Resource not found",
           "request": {
             "method": "GET",
             "header": [],
@@ -399,7 +399,7 @@
       ]
     },
     {
-      "name": "9 - Refuser la suppression du lieu avec avis",
+      "name": "9 - Reject deletion of a place with reviews",
       "request": {
         "method": "DELETE",
         "header": [],
@@ -419,10 +419,10 @@
       ]
     },
     {
-      "name": "10 - Suppressions permises et statistiques",
+      "name": "10 - Allowed deletions and statistics",
       "item": [
         {
-          "name": "10 - Supprimer l’avis",
+          "name": "10 - Delete the review",
           "request": {
             "method": "DELETE",
             "header": [],
@@ -434,7 +434,7 @@
               "script": {
                 "exec": [
                   "pm.test('204 No Content', () => pm.response.to.have.status(204));",
-                  "pm.test('Corps vide', () => pm.expect(pm.response.text()).to.eql(''));"
+                  "pm.test('Empty response body', () => pm.expect(pm.response.text()).to.eql(''));"
                 ],
                 "type": "text/javascript"
               }
@@ -442,7 +442,7 @@
           ]
         },
         {
-          "name": "Vérifier les statistiques sans avis",
+          "name": "Check statistics with no reviews",
           "request": {
             "method": "GET",
             "header": [],
@@ -455,14 +455,14 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Statistiques remises à zéro', () => { const b = pm.response.json(); pm.expect(b.reviewCount).to.eql(0); pm.expect(b.averageRating).to.eql(null); });"
+                  "pm.test('Statistics reset', () => { const b = pm.response.json(); pm.expect(b.reviewCount).to.eql(0); pm.expect(b.averageRating).to.eql(null); });"
                 ]
               }
             }
           ]
         },
         {
-          "name": "Supprimer le lieu sans avis",
+          "name": "Delete the place with no reviews",
           "request": {
             "method": "DELETE",
             "header": [],
@@ -475,7 +475,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('HTTP 204', () => pm.response.to.have.status(204));",
-                  "pm.test('Corps vide', () => pm.expect(pm.response.text()).to.eql(''));"
+                  "pm.test('Empty response body', () => pm.expect(pm.response.text()).to.eql(''));"
                 ]
               }
             }

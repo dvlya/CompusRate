@@ -5,11 +5,12 @@ import Joi from 'joi';
 import databaseConfig from './config/database.config.js';
 import { PlacesModule } from './places/places.module.js';
 import { ReviewsModule } from './reviews/reviews.module.js';
-
+import { AuthModule } from './auth/auth.module.js';
 @Module({
   imports: [
      PlacesModule,
     ReviewsModule,
+    AuthModule,
     // 1. Gestion des configurations avec validation stricte
     ConfigModule.forRoot({
       isGlobal: true,
@@ -18,6 +19,7 @@ import { ReviewsModule } from './reviews/reviews.module.js';
         // Si MONGO_URI est absent, NestJS plantera immédiatement avec un message clair
         MONGO_URI: Joi.string().required(),
         PORT: Joi.number().default(3000),
+        JWT_SECRET: Joi.string().min(32).required(),
       }),
     }),
 
