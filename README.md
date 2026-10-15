@@ -23,11 +23,10 @@ Créer le fichier `.env` :
 Copy-Item .env.example .env
 ```
 
-Remplir les variables :
-| --- | --- |
-| Variable | Description |
-| PORT | Port HTTPS, par exemple 3000 |
-| MONGO_URI | URI de connexion à MongoDB |
+| Variable   | Description                               |
+| ---------- | ----------------------------------------- |
+| PORT       | Port HTTPS, par exemple 3000              |
+| MONGO_URI  | URI de connexion à MongoDB                |
 | JWT_SECRET | Secret aléatoire d’au moins 32 caractères |
 
 Pour Atlas, utiliser son URI, créer un utilisateur de base de données
