@@ -11,7 +11,7 @@ MongoDB accessible et OpenSSL.
 ```bash
 git clone https://github.com/dvlya/CompusRate.git
 cd CompusRate
-git switch feature/TP2
+git switch Feature/TP2
 npm ci
 ```
 
