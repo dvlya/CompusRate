@@ -11,6 +11,11 @@ export class Review {
 
   @Prop({ type: String, required: true, ref: 'Place' })
   placeId!: string;
+  // permission
+  @Prop({ type: String, ref: 'User' })
+  ownerId?: string;
+  
+
 
   @Prop({ required: true })
   authorName!: string;

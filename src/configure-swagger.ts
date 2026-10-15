@@ -8,8 +8,9 @@ export function configureSwagger(app: INestApplication): void {
       'REST API for consulting campus places and publishing reviews.',
     )
     .setVersion('1.0.0')
-    .addTag('Places', 'Gestion des lieux du campus')
-    .addTag('Reviews', 'Gestion des appréciations')
+  .addTag('Places', 'Manage campus places')
+  .addTag('Reviews', 'Manage campus reviews')
+    .addBearerAuth()
     .build();
   const documentFactory = () =>
     SwaggerModule.createDocument(app, swaggerConfig);

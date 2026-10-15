@@ -1,31 +1,6 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Param,
-  ParseUUIDPipe,
-  Patch,
-  Post,
-  Query,
-  Res,
-} from '@nestjs/common';
-import {
-  ApiBadRequestResponse,
-  ApiConflictResponse,
-  ApiCreatedResponse,
-  ApiInternalServerErrorResponse,
-  ApiNoContentResponse,
-  ApiNotFoundResponse,
-  ApiOkResponse,
-  ApiOperation,
-  ApiParam,
-  ApiTags,
-} from '@nestjs/swagger';
+import {Body,Controller,Delete,Get,HttpCode,HttpStatus,Param,ParseUUIDPipe,Patch,Post,Query,Res,} from '@nestjs/common';
+import {ApiBadRequestResponse, ApiConflictResponse,ApiCreatedResponse,ApiInternalServerErrorResponse,ApiNoContentResponse,ApiNotFoundResponse,ApiOkResponse,ApiOperation,ApiParam,ApiTags,} from '@nestjs/swagger';
 import type { Response } from 'express';
-
 import { ProblemDetailsDto } from '../common/dto/problem-details.dto.js';
 import { CreatePlaceDto } from './dto/create-place.dto.js';
 import { UpdatePlaceDto } from './dto/update-place.dto.js';
@@ -33,10 +8,14 @@ import { PlacesQueryDto } from './dto/places-query.dto.js';
 import { PaginatedPlacesDto } from './dto/paginated-places.dto.js';
 import { Place } from './entities/place.entity.js';
 import { PlacesService } from './places.service.js';
-
+import { UseGuards } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
+import { RolesGuard } from '../auth/roles.guard.js';
+import { Roles } from '../auth/roles.decorator.js';
 @ApiTags('Places')
 @ApiInternalServerErrorResponse({
-  description: 'Erreur interne.',
+  description: 'Internal error.',
   type: ProblemDetailsDto,
 })
 @Controller({ path: 'places', version: '1' })
@@ -44,19 +23,22 @@ export class PlacesController {
   constructor(private readonly placesService: PlacesService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Créer un lieu' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create a campus place' })
   @ApiCreatedResponse({
-    description: 'Lieu créé.',
+    description: 'Place created.',
     type: Place,
     headers: {
       Location: {
-        description: 'Adresse du lieu créé.',
+        description: 'URI of the created place.',
         schema: { type: 'string' },
       },
     },
   })
   @ApiBadRequestResponse({
-    description: 'Données invalides ou propriétés non autorisées.',
+    description: 'Invalid data or unauthorized properties.',
     type: ProblemDetailsDto,
   })
   async create(
@@ -69,10 +51,10 @@ export class PlacesController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Lister et filtrer les lieux' })
+  @ApiOperation({ summary: 'List and filter campus places' })
   @ApiOkResponse({ type: PaginatedPlacesDto })
   @ApiBadRequestResponse({
-    description: 'Filtres ou pagination invalides.',
+    description: 'Invalid filters or pagination.',
     type: ProblemDetailsDto,
   })
   findAll(@Query() query: PlacesQueryDto): Promise<PaginatedPlacesDto> {
@@ -80,15 +62,15 @@ export class PlacesController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Consulter un lieu' })
+  @ApiOperation({ summary: 'Get one campus place' })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiOkResponse({ type: Place })
   @ApiBadRequestResponse({
-    description: 'Identifiant UUID invalide.',
+    description: 'Invalid UUID.',
     type: ProblemDetailsDto,
   })
   @ApiNotFoundResponse({
-    description: 'Lieu introuvable.',
+    description: 'Place not found.',
     type: ProblemDetailsDto,
   })
   findOne(
@@ -98,15 +80,18 @@ export class PlacesController {
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Modifier un lieu' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update a campus place' })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiOkResponse({ type: Place })
   @ApiBadRequestResponse({
-    description: 'Identifiant ou données invalides.',
+    description: 'Invalid identifier or data.',
     type: ProblemDetailsDto,
   })
   @ApiNotFoundResponse({
-    description: 'Lieu introuvable.',
+    description: 'Place not found.',
     type: ProblemDetailsDto,
   })
   update(
@@ -117,20 +102,23 @@ export class PlacesController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Supprimer un lieu sans avis' })
+  @ApiOperation({ summary: 'Delete a campus place without reviews' })
   @ApiParam({ name: 'id', format: 'uuid' })
-  @ApiNoContentResponse({ description: 'Lieu supprimé.' })
+  @ApiNoContentResponse({ description: 'Place deleted.' })
   @ApiBadRequestResponse({
-    description: 'Identifiant UUID invalide.',
+    description: 'Invalid UUID.',
     type: ProblemDetailsDto,
   })
   @ApiNotFoundResponse({
-    description: 'Lieu introuvable.',
+    description: 'Place not found.',
     type: ProblemDetailsDto,
   })
   @ApiConflictResponse({
-    description: 'Le lieu possède encore des avis.',
+    description: 'The place still has reviews.',
     type: ProblemDetailsDto,
   })
   async remove(
