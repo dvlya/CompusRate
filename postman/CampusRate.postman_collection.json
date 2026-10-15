@@ -1,52 +1,30 @@
 {
   "info": {
-    "_postman_id": "58c6947b-a6a9-4de5-8d51-72b15385a8f8",
+    "_postman_id": "6e90bea1-d3ee-4685-af23-6708690f95d4",
     "name": "CampusRate API v1",
-    "description": "10 manual scenarios to verify the CampusRate REST contract.",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "description": "10 scénarios manuels pour vérifier le contrat REST CampusRate.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "58961669",
+    "_collection_link": "https://go.postman.co/collection/58961669-6e90bea1-d3ee-4685-af23-6708690f95d4?source=collection_link"
   },
   "item": [
     {
-      "name": "1 - Create a valid place",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"name\": \"Cafeteria\",\n  \"description\": \"A welcoming place to enjoy delicious meals and hang out with friends.\",\n  \"category\": \"cafeteria\",\n  \"address\": \"Main pavilion\",\n  \"services\": [\"WIFI\", \"POWER_OUTLETS\", \"SEATING\", \"TAKEOUT\", \"MICROWAVE\", \"COFFEE\"]\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": "{{baseUrl}}/api/v1/places"
-      },
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test('201 Created', () => pm.response.to.have.status(201));",
-              "const body = pm.response.json();",
-              "pm.collectionVariables.set('placeId', body.id);",
-              "pm.test('Location header is present', () => pm.expect(pm.response.headers.get('Location')).to.include(body.id));"
-            ],
-            "type": "text/javascript"
-          }
-        }
-      ]
-    },
-    {
-      "name": "2 - Reject unknown properties and server-managed fields",
+      "name": "2 - Propriété inconnue et champs serveur refusés",
       "item": [
         {
-          "name": "2 - Reject an unknown property",
+          "name": "2 - Refuser une propriété inconnue",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Problem Details', () => { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json'); pm.expect(pm.response.json()).to.have.keys('type', 'title', 'status', 'detail', 'instance'); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -64,23 +42,34 @@
                 }
               }
             },
-            "url": "{{baseUrl}}/api/v1/places"
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/places",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "places"
+              ]
+            }
           },
+          "response": []
+        },
+        {
+          "name": "Refuser id",
           "event": [
             {
               "listen": "test",
               "script": {
+                "type": "text/javascript",
                 "exec": [
                   "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
                   "pm.test('Problem Details', () => { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json'); pm.expect(pm.response.json()).to.have.keys('type', 'title', 'status', 'detail', 'instance'); });"
-                ],
-                "type": "text/javascript"
+                ]
               }
             }
-          ]
-        },
-        {
-          "name": "Reject a client-provided ID",
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -89,7 +78,6 @@
                 "value": "application/json"
               }
             ],
-            "url": "{{baseUrl}}/api/v1/places",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Cafeteria\",\n  \"description\": \"Food service in the central pavilion.\",\n  \"category\": \"cafeteria\",\n  \"address\": \"Central pavilion, level 1\",\n  \"id\": \"client-id\"\n}",
@@ -98,164 +86,64 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/places",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "places"
+              ]
+            },
+            "description": "Resultat attendu : 400 Bad Request"
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
-                  "pm.test('Problem Details', () => { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json'); pm.expect(pm.response.json()).to.have.keys('type', 'title', 'status', 'detail', 'instance'); });"
-                ]
-              }
-            }
-          ]
+          "response": []
         }
-      ]
+      ],
+      "description": "Resultat attendu : 400 Bad Request"
     },
     {
-      "name": "3 - Filter and paginate places",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": "{{baseUrl}}/api/v1/places?category=cafeteria&page=1&limit=10"
-      },
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
-              "pm.test('Pagination', () => { const body = pm.response.json(); pm.expect(body).to.have.keys('data', 'pagination'); pm.expect(body.pagination).to.have.keys('page', 'limit', 'totalItems', 'totalPages'); });"
-            ],
-            "type": "text/javascript"
-          }
-        }
-      ]
-    },
-    {
-      "name": "4 - Get the created place",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": "{{baseUrl}}/api/v1/places/{{placeId}}"
-      },
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test('200 OK', () => pm.response.to.have.status(200));",
-              "pm.test('Correct ID', () => pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('placeId')));"
-            ],
-            "type": "text/javascript"
-          }
-        }
-      ]
-    },
-    {
-      "name": "5 - Partially update a place",
-      "request": {
-        "method": "PATCH",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"status\": \"TEMPORARILY_CLOSED\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": "{{baseUrl}}/api/v1/places/{{placeId}}"
-      },
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test('200 OK', () => pm.response.to.have.status(200));",
-              "pm.test('Status updated', () => pm.expect(pm.response.json().status).to.eql('TEMPORARILY_CLOSED'));"
-            ],
-            "type": "text/javascript"
-          }
-        }
-      ]
-    },
-    {
-      "name": "6 - Create a review",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"authorName\": \"Dalia Laifa\",\n  \"rating\": 5,\n  \"comment\": \"Delicious meals and a welcoming atmosphere.\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": "{{baseUrl}}/api/v1/places/{{placeId}}/reviews"
-      },
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test('201 Created', () => pm.response.to.have.status(201));",
-              "const body = pm.response.json();",
-              "pm.collectionVariables.set('reviewId', body.id);",
-              "pm.test('placeId matches the URI', () => pm.expect(body.placeId).to.eql(pm.collectionVariables.get('placeId')));"
-            ],
-            "type": "text/javascript"
-          }
-        }
-      ]
-    },
-    {
-      "name": "7 - Retrieval and persistence after restart",
-      "description": "After scenario 6, stop and restart the API before sending these requests. The resources must remain available with the same IDs.",
+      "name": "7 - Consultation et persistance après redémarrage",
       "item": [
         {
-          "name": "7 - List reviews for the place",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": "{{baseUrl}}/api/v1/places/{{placeId}}/reviews"
-          },
+          "name": "7 - Lister les avis du lieu",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
                   "pm.test('200 OK', () => pm.response.to.have.status(200));",
-                  "pm.test('At least one review', () => pm.expect(pm.response.json().length).to.be.above(0));"
+                  "pm.test('Au moins un avis', () => pm.expect(pm.response.json().length).to.be.above(0));"
                 ],
                 "type": "text/javascript"
               }
             }
-          ]
-        },
-        {
-          "name": "Get the review after restart",
+          ],
           "request": {
             "method": "GET",
             "header": [],
-            "url": "{{baseUrl}}/api/v1/reviews/{{reviewId}}"
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/places/{{placeId}}/reviews",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "places",
+                "{{placeId}}",
+                "reviews"
+              ]
+            },
+            "description": "Resultat attendu = 200 ok"
           },
+          "response": []
+        },
+        {
+          "name": "Consulter l’avis après redémarrage",
           "event": [
             {
               "listen": "test",
@@ -263,19 +151,50 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Review persisted', () => pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('reviewId')));"
+                  "pm.test('Avis conservé', () => pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('reviewId')));"
                 ]
               }
             }
-          ]
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reviews/{{reviewId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reviews",
+                "{{reviewId}}"
+              ]
+            },
+            "description": "Resultat attendu = 200 ok"
+          },
+          "response": []
         }
-      ]
+      ],
+      "description": "Après le scénario 6, arrêter puis redémarrer l’API avant ces requêtes. Les identifiants doivent rester disponibles."
     },
     {
-      "name": "8 - Valid updates and errors",
+      "name": "8 - Modification valide et erreurs",
       "item": [
         {
-          "name": "8 - Update a review",
+          "name": "8 - Modifier un avis",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Note modifiée', () => pm.expect(pm.response.json().rating).to.eql(4));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "PATCH",
             "header": [
@@ -293,23 +212,36 @@
                 }
               }
             },
-            "url": "{{baseUrl}}/api/v1/reviews/{{reviewId}}"
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reviews/{{reviewId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reviews",
+                "{{reviewId}}"
+              ]
+            },
+            "description": "Resultat attendu = 200 ok"
           },
+          "response": []
+        },
+        {
+          "name": "Refuser une note invalide",
           "event": [
             {
               "listen": "test",
               "script": {
+                "type": "text/javascript",
                 "exec": [
-                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
-                  "pm.test('Rating updated', () => pm.expect(pm.response.json().rating).to.eql(4));"
-                ],
-                "type": "text/javascript"
+                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Problem Details', () => { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json'); pm.expect(pm.response.json()).to.have.keys('type', 'title', 'status', 'detail', 'instance'); });"
+                ]
               }
             }
-          ]
-        },
-        {
-          "name": "Reject an invalid rating",
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -318,17 +250,34 @@
                 "value": "application/json"
               }
             ],
-            "url": "{{baseUrl}}/api/v1/places/{{placeId}}/reviews",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"authorName\": \"Dalia\",\n  \"rating\": 6,\n  \"comment\": \"A valid comment.\"\n}",
+              "raw": "{\n  \"authorName\": \"Dalia\",\n  \"rating\": 6,\n  \"comment\": \"Un commentaire valide.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
-            }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/places/{{placeId}}/reviews",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "places",
+                "{{placeId}}",
+                "reviews"
+              ]
+            },
+            "description": "Resultat attendu : 400 Bad Request"
           },
+          "response": []
+        },
+        {
+          "name": "Refuser rating null",
           "event": [
             {
               "listen": "test",
@@ -340,10 +289,7 @@
                 ]
               }
             }
-          ]
-        },
-        {
-          "name": "Reject a null rating",
+          ],
           "request": {
             "method": "PATCH",
             "header": [
@@ -352,7 +298,6 @@
                 "value": "application/json"
               }
             ],
-            "url": "{{baseUrl}}/api/v1/reviews/{{reviewId}}",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"rating\": null\n}",
@@ -361,28 +306,25 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reviews/{{reviewId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reviews",
+                "{{reviewId}}"
+              ]
+            },
+            "description": "Resultat attendu : 400 Bad Request"
           },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
-                  "pm.test('Problem Details', () => { pm.expect(pm.response.headers.get('Content-Type')).to.include('application/problem+json'); pm.expect(pm.response.json()).to.have.keys('type', 'title', 'status', 'detail', 'instance'); });"
-                ]
-              }
-            }
-          ]
+          "response": []
         },
         {
-          "name": "Resource not found",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": "{{baseUrl}}/api/v1/places/00000000-0000-4000-8000-000000000000"
-          },
+          "name": "Ressource inexistante",
           "event": [
             {
               "listen": "test",
@@ -394,17 +336,457 @@
                 ]
               }
             }
-          ]
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/places/00000000-0000-4000-8000-000000000000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "places",
+                "00000000-0000-4000-8000-000000000000"
+              ]
+            },
+            "description": "Resultat attendu : 404 not found"
+          },
+          "response": []
+        }
+      ],
+      "description": "Resultat attendu = 200 ok"
+    },
+    {
+      "name": "10 - Suppressions permises et statistiques",
+      "item": [
+        {
+          "name": "10 - Supprimer l’avis",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('204 No Content', () => pm.response.to.have.status(204));",
+                  "pm.test('Corps vide', () => pm.expect(pm.response.text()).to.eql(''));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reviews/{{reviewId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "reviews",
+                "{{reviewId}}"
+              ]
+            },
+            "description": "Resultat attendu : 204 No Content"
+          },
+          "response": []
+        },
+        {
+          "name": "Vérifier les statistiques sans avis",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Statistiques remises à zéro', () => { const b = pm.response.json(); pm.expect(b.reviewCount).to.eql(0); pm.expect(b.averageRating).to.eql(null); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/places/{{placeId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "places",
+                "{{placeId}}"
+              ]
+            },
+            "description": "Réponse attendue = 200 ok, avec reviewCount = 0 et avgCount = null"
+          },
+          "response": []
+        },
+        {
+          "name": "Supprimer le lieu sans avis",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 204', () => pm.response.to.have.status(204));",
+                  "pm.test('Corps vide', () => pm.expect(pm.response.text()).to.eql(''));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/places/{{placeId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "places",
+                "{{placeId}}"
+              ]
+            },
+            "description": "Resultat attendu : 204 No Content"
+          },
+          "response": []
         }
       ]
     },
     {
-      "name": "9 - Reject deletion of a place with reviews",
+      "name": "1 - Créer un lieu valide",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('201 Created', () => pm.response.to.have.status(201));",
+              "const body = pm.response.json();",
+              "pm.collectionVariables.set('placeId', body.id);",
+              "pm.test('Location est présent', () => pm.expect(pm.response.headers.get('Location')).to.include(body.id));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
       "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": "{{baseUrl}}/api/v1/places/{{placeId}}"
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Cafeteria\",\n  \"description\": \"A welcoming place to enjoy delicious meals and hang out with friends.\",\n  \"category\": \"cafeteria\",\n  \"address\": \"Main pavilion\",\n  \"services\": [\"WIFI\", \"POWER_OUTLETS\", \"SEATING\", \"TAKEOUT\", \"MICROWAVE\", \"COFFEE\"]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/places",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "places"
+          ]
+        },
+        "description": "Reponse attendu : 201 created"
       },
+      "response": []
+    },
+    {
+      "name": "Creation refusee au USER",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('201 Created', () => pm.response.to.have.status(201));\nconst body = pm.response.json();\npm.collectionVariables.set('placeId', body.id);\npm.test('Location est présent', () => pm.expect(pm.response.headers.get('Location')).to.include(body.id));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Cafeteria\",\n  \"description\": \"A welcoming place to enjoy delicious meals and hang out with friends.\",\n  \"category\": \"cafeteria\",\n  \"address\": \"Main pavilion\",\n  \"services\": [\"WIFI\", \"POWER_OUTLETS\", \"SEATING\", \"TAKEOUT\", \"MICROWAVE\", \"COFFEE\"]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/places",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "places"
+          ]
+        },
+        "description": "Reponse attendu : 201 created"
+      },
+      "response": []
+    },
+    {
+      "name": "Creation authorisee a lADMIN",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('201 Created', () => pm.response.to.have.status(201));\nconst body = pm.response.json();\npm.collectionVariables.set('placeId', body.id);\npm.test('Location est présent', () => pm.expect(pm.response.headers.get('Location')).to.include(body.id));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Cafeteria\",\n  \"description\": \"A welcoming place to enjoy delicious meals and hang out with friends.\",\n  \"category\": \"cafeteria\",\n  \"address\": \"Main pavilion\",\n  \"services\": [\"WIFI\", \"POWER_OUTLETS\", \"SEATING\", \"TAKEOUT\", \"MICROWAVE\", \"COFFEE\"]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://localhost:3000/api/v1/places",
+          "protocol": "https",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "v1",
+            "places"
+          ]
+        },
+        "description": "Reponse attendu : 201 created"
+      },
+      "response": []
+    },
+    {
+      "name": "3 - Filtrer et paginer les lieux",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.test('Pagination', () => { const body = pm.response.json(); pm.expect(body).to.have.keys('data', 'pagination'); pm.expect(body.pagination).to.have.keys('page', 'limit', 'totalItems', 'totalPages'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/places?category=cafeteria&page=1&limit=10",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "places"
+          ],
+          "query": [
+            {
+              "key": "category",
+              "value": "cafeteria"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "4 - Consulter le lieu créé",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "pm.test('Bon identifiant', () => pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('placeId')));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/places/{{placeId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "places",
+            "{{placeId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "5 - Modifier partiellement un lieu",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "pm.test('Statut modifié', () => pm.expect(pm.response.json().status).to.eql('TEMPORARILY_CLOSED'));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"TEMPORARILY_CLOSED\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/places/{{placeId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "places",
+            "{{placeId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "6 - Créer un avis",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('201 Created', () => pm.response.to.have.status(201));",
+              "const body = pm.response.json();",
+              "pm.collectionVariables.set('reviewId', body.id);",
+              "pm.test('Le placeId vient de l’URI', () => pm.expect(body.placeId).to.eql(pm.collectionVariables.get('placeId')));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"authorName\": \"Dalia Laifa\",\n  \"rating\": 5,\n  \"comment\": \"Delicious meals and a welcoming atmosphere.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/places/{{placeId}}/reviews",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "places",
+            "{{placeId}}",
+            "reviews"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "9 - Refuser la suppression du lieu avec avis",
       "event": [
         {
           "listen": "test",
@@ -416,72 +798,160 @@
             "type": "text/javascript"
           }
         }
-      ]
-    },
-    {
-      "name": "10 - Allowed deletions and statistics",
-      "item": [
-        {
-          "name": "10 - Delete the review",
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": "{{baseUrl}}/api/v1/reviews/{{reviewId}}"
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('204 No Content', () => pm.response.to.have.status(204));",
-                  "pm.test('Empty response body', () => pm.expect(pm.response.text()).to.eql(''));"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        },
-        {
-          "name": "Check statistics with no reviews",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": "{{baseUrl}}/api/v1/places/{{placeId}}"
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Statistics reset', () => { const b = pm.response.json(); pm.expect(b.reviewCount).to.eql(0); pm.expect(b.averageRating).to.eql(null); });"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Delete the place with no reviews",
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": "{{baseUrl}}/api/v1/places/{{placeId}}"
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('HTTP 204', () => pm.response.to.have.status(204));",
-                  "pm.test('Empty response body', () => pm.expect(pm.response.text()).to.eql(''));"
-                ]
-              }
-            }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/places/{{placeId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "places",
+            "{{placeId}}"
           ]
         }
-      ]
+      },
+      "response": []
+    },
+    {
+      "name": "Connexion valide",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"dvlya\",\r\n  \"password\": \"lolipop213\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://localhost:3000/api/v1/auth/profile",
+          "protocol": "https",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "profile"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Connexion USER",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"dalya\",\r\n  \"password\": \"lolipop213\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://localhost:3000/api/v1/auth/login",
+          "protocol": "https",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Profile avec token valide",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://localhost:3000/api/v1/auth/profile",
+          "protocol": "https",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "profile"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Profile sans token valide",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://localhost:3000/api/v1/auth/profile",
+          "protocol": "https",
+          "host": [
+            "localhost"
+          ],
+          "port": "3000",
+          "path": [
+            "api",
+            "v1",
+            "auth",
+            "profile"
+          ]
+        }
+      },
+      "response": []
     }
   ],
   "variable": [
